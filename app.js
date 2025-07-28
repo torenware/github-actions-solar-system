@@ -4,7 +4,8 @@ const OS = require('os');
 const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 const app = express();
-const cors = require('cors')
+const cors = require('cors');
+
 
 
 app.use(bodyParser.json());
@@ -36,16 +37,15 @@ var dataSchema = new Schema({
 });
 var planetModel = mongoose.model('planets', dataSchema);
 
-
-
-app.post('/planet',   function(req, res) {
-   // console.log("Received Planet ID " + req.body.id)
+app.post('/planet', function(req, res) {
     planetModel.findOne({
         id: req.body.id
     }, function(err, planetData) {
         if (err) {
-            alert("Ooops, We only have 9 planets and a sun. Select a number from 0 - 9")
-            res.send("Error in Planet Data")
+            console.error("Error: " + err);
+            res.status(500).send("Error in Planet Data");
+        } else if (!planetData) {
+            res.status(404).send("Planet not found");
         } else {
             res.send(planetData);
         }
