@@ -10,6 +10,11 @@ env:
     MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData
     MONGO_USERNAME: superuser
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+    PACKAGE_WRITER: ${{ secrets.PACKAGE_WRITER_TOKEN }}
+
+permissions: 
+    contents: read
+    packages: write
     
 jobs:
     unit-testing:
@@ -44,11 +49,6 @@ jobs:
     docker:
       name: Dockerize
       runs-on: ubuntu-latest
-      permissions: 
-        contents: read
-        packages: write
-        attestations: write
-        id-token: write
 
       needs:
         - unit-testing
@@ -61,7 +61,7 @@ jobs:
           with:
             registry: ghcr.io
             username: ${{ github.repository_owner }}
-            password: ${{ secrets.GITHUB_TOKEN }}  
+            password: ${{ secrets.PACKAGE_WRITER_TOKEN }}  
 
         -
           name: Set up QEMU
