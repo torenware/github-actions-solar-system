@@ -129,5 +129,5 @@ jobs:
             # wait for DNS and run image
             sleep 60
             kubectl -n kube-system get pod
-            kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:${{ github.sha }} || sleep 30
+            kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:${{ github.sha }}
             kubectl logs solar
