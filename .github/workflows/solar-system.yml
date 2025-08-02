@@ -72,6 +72,7 @@ jobs:
             tags: ${{ github.actor }}/solar-system:${{ github.sha }}
         - name: image test
           run: |
+            docker images
             docker run --name solar-system-app -d \
               -p 3000:3000 \
               -e MONGO_URI=$MONGO_URI \
