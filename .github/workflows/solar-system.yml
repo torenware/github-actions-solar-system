@@ -46,7 +46,6 @@ jobs:
       runs-on: ubuntu-latest
       permissions:
         contents: read
-        pull-requests: write
         packages: write
       needs:
         - unit-testing
@@ -64,9 +63,9 @@ jobs:
         -
           name: Set up QEMU
           uses: docker/setup-qemu-action@v3
-        # -
-        #   name: Set up Docker Buildx
-        #   uses: docker/setup-buildx-action@v3
+        -
+          name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
         -
           name: Build for Test
           uses: docker/build-push-action@v6
@@ -92,7 +91,7 @@ jobs:
             context: .
             push: true
             tags: | 
-              ${{ github.actor }}/solar-system:${{ github.sha }}
+              ${{ github.repository_owner }}/solar-system:${{ github.sha }}
               ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
 
     kind:
