@@ -105,6 +105,7 @@ jobs:
               ${{ github.repository_owner }}/solar-system:${{ github.sha }}
               ${{ github.repository_owner }}/solar-system:latest
         - name: GHCR repo push
+          continue-on-error: true
           uses: docker/build-push-action@v6
           with:
             context: .
@@ -118,6 +119,12 @@ jobs:
     kind:
         name: Install kind
         runs-on: ubuntu-latest
+        needs:
+        - docker
         steps:
         - name: install cluster
           uses: helm/kind-action@v1
+        - name: Pull image
+          run: |
+            kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:latest
+            kubectl logs solar
