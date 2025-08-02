@@ -44,9 +44,12 @@ jobs:
     docker:
       name: Dockerize
       runs-on: ubuntu-latest
-      permissions:
+      permissions: 
         contents: read
         packages: write
+        attestations: write
+        id-token: write
+
       needs:
         - unit-testing
       steps:
