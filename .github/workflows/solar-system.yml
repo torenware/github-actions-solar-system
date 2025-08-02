@@ -64,6 +64,13 @@ jobs:
             # password: ${{ secrets.PACKAGE_WRITER_TOKEN }}
             password: ${{ secrets.GITHUB_TOKEN }}  
 
+        - name: Login to DockerHub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKERHUB_USER }}
+            password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+
+            
         -
           name: Set up QEMU
           uses: docker/setup-qemu-action@v3
