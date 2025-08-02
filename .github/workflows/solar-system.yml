@@ -126,5 +126,5 @@ jobs:
           uses: helm/kind-action@v1
         - name: Pull image
           run: |
-            kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:latest || sleep 30
-            kubectl logs solar
+            # kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:latest || sleep 30
+            kubectl -n kube-system get pod
