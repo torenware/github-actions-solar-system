@@ -68,7 +68,7 @@ jobs:
           uses: docker/build-push-action@v6
           with:
             context: .
-            push: false
+            push: true
             tags: ${{ github.actor }}/solar-system:${{ github.sha }}
         - name: image test
           run: |
