@@ -130,5 +130,5 @@ jobs:
             sleep 60
             kubectl -n kube-system get pod
             kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:${{ github.sha }} \
-             --pod-running-timeout && sleep 10
+             --pod-running-timeout 60s && sleep 10
             kubectl logs solar
