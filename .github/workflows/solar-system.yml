@@ -61,7 +61,8 @@ jobs:
           with:
             registry: ghcr.io
             username: ${{ github.repository_owner }}
-            password: ${{ secrets.PACKAGE_WRITER_TOKEN }}  
+            # password: ${{ secrets.PACKAGE_WRITER_TOKEN }}
+            password: ${{ secrets.GITHUB_TOKEN }}  
 
         -
           name: Set up QEMU
@@ -88,6 +89,14 @@ jobs:
 
             echo "see if image returns expected live endpoint"
             wget -q -O - 127.0.0.1:3000/live | grep live
+        - name: Dockerhub repo push
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            push: true
+            tags: | 
+              ${{ github.repository_owner }}/solar-system:${{ github.sha }}
+              ${{ github.repository_owner }}/solar-system:latest
         - name: GHCR repo push
           uses: docker/build-push-action@v6
           with:
@@ -96,8 +105,8 @@ jobs:
             tags: | 
               ${{ github.repository_owner }}/solar-system:${{ github.sha }}
               ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
-            secrets: |
-              GIT_AUTH_TOKEN=${{ secrets.PACKAGE_WRITER_TOKEN }}
+            # secrets: |
+            #   GIT_AUTH_TOKEN=${{ secrets.PACKAGE_WRITER_TOKEN }}
 
     kind:
         name: Install kind
