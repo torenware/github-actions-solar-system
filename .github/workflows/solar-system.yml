@@ -70,7 +70,7 @@ jobs:
 
       env:
         #LOCAL_REGISTRY: ${{ needs.registry.outputs.registry_location }}
-        LOCAL_REGISTRY: http://localhost:5001
+        LOCAL_REGISTRY: localhost:5001
 
       steps:
         - name: Install sources
@@ -124,7 +124,7 @@ jobs:
             # wait for DNS and run image
             sleep 60
             kubectl -n kube-system get pod
-            kubectl run solar --image http://localhost:5001/solar-system:${{ github.sha }} \
+            kubectl run solar --image localhost:5001/solar-system:${{ github.sha }} \
                --pod-running-timeout 60s \
                --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}} \
             sleep 10
