@@ -84,6 +84,16 @@ jobs:
             context: .
             push: false
             tags: ${{ github.actor }}/solar-system:${{ github.sha }}
+
+        - name: Debug GHCR
+          run: |
+          
+            echo "--- vars for GHCR --"
+            echo "Owner:  ${{ github.repository_owner }}"
+            echo "Actor:  ${{ github.actor }}"
+            echo "-------------------------"
+            
+            
         - name: image test
           run: |
             docker images
@@ -105,14 +115,6 @@ jobs:
               ${{ github.repository_owner }}/solar-system:${{ github.sha }}
               ${{ github.repository_owner }}/solar-system:latest
         
-        - name: Debug GHCR
-          run: |
-          
-            echo "--- vars for GHCR --"
-            echo "Owner:  ${{ github.repository_owner }}"
-            echo "Actor:  ${{ github.actor }}"
-            echo "-------------------------"
-            
         - name: GHCR repo push
           continue-on-error: true
           uses: docker/build-push-action@v6
