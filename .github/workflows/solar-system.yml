@@ -88,7 +88,9 @@ jobs:
           with:
             context: .
             push: false
-            tags: ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
+            tags: |
+              ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
+              ${{ env.LOCAL_REGISTRY }}/solar-system:latest
 
         - name: image test
           run: |
@@ -103,14 +105,10 @@ jobs:
             echo "see if image returns expected live endpoint"
             wget -q -O - 127.0.0.1:3000/live | grep live
 
-        - name: LOCAL_REGISTRY push
-          uses: docker/build-push-action@v6
-          with:
-            context: .
-            push: true
-            tags: | 
-              ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
-              ${{ env.LOCAL_REGISTRY }}/solar-system:latest
+        - name: push to insecure registry
+          run: |
+            docker push ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
+            docker push ${{ env.LOCAL_REGISTRY }}/solar-system:latest
 
     kind:
         name: Test K8s
