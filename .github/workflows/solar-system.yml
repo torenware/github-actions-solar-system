@@ -10,7 +10,6 @@ env:
     MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData
     MONGO_USERNAME: superuser
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-    PACKAGE_WRITER: ${{ secrets.PACKAGE_WRITER_TOKEN }}
 
 permissions: 
     contents: read
@@ -46,31 +45,36 @@ jobs:
             path: ~/.npm
             key: "${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}"
 
+    registry:
+      name: Create Kind Cluster and Local Registry
+      runs-on: ubuntu-latest
+      outputs:
+        registry_location: ${{ steps.kind.outputs.LOCAL_REGISTRY }}
+      steps:
+        - id: kind
+          uses: helm/kind-action@v1
+          with:
+            registry: true
+            registry_name: custom-registry
+            registry_port: 5001
+            kubectl_version: "v1.32.0"
+            ignore_failed_clean: true      
+
     docker:
       name: Dockerize
       runs-on: ubuntu-latest
 
       needs:
         - unit-testing
+        - registry
+
+      env:
+        LOCAL_REGISTRY: ${{ needs.registry.outputs.registry_location }}
+
       steps:
         - name: Install sources
           uses: actions/checkout@v4
-      
-        - name: Login to GitHub Container Registry
-          uses: docker/login-action@v3
-          with:
-            registry: ghcr.io
-            username: ${{ github.repository_owner }}
-            # password: ${{ secrets.PACKAGE_WRITER_TOKEN }}
-            password: ${{ secrets.GITHUB_TOKEN }}  
 
-        - name: Login to DockerHub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_PASSWORD }}  
-
-            
         -
           name: Set up QEMU
           uses: docker/setup-qemu-action@v3
@@ -83,7 +87,8 @@ jobs:
           with:
             context: .
             push: false
-            tags: ${{ github.actor }}/solar-system:${{ github.sha }}
+            tags: ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
+
         - name: image test
           run: |
             docker images
@@ -92,44 +97,33 @@ jobs:
               -e MONGO_URI=$MONGO_URI \
               -e MONGO_USERNAME=$MONGO_USERNAME \
               -e MONGO_PASSWORD=$MONGO_PASSWORD \
-              ${{ github.actor }}/solar-system:${{ github.sha }}
+              ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
 
             echo "see if image returns expected live endpoint"
             wget -q -O - 127.0.0.1:3000/live | grep live
-        - name: Dockerhub repo push
+
+        - name: LOCAL_REGISTRY push
           uses: docker/build-push-action@v6
           with:
             context: .
             push: true
             tags: | 
-              ${{ github.repository_owner }}/solar-system:${{ github.sha }}
-              ${{ github.repository_owner }}/solar-system:latest
-        - name: GHCR repo push
-          continue-on-error: true
-          uses: docker/build-push-action@v6
-          with:
-            context: .
-            push: true
-            tags: | 
-              ${{ github.repository_owner }}/solar-system:${{ github.sha }}
-              ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
-            # secrets: |
-            #   GIT_AUTH_TOKEN=${{ secrets.PACKAGE_WRITER_TOKEN }}
+              ${{ env.LOCAL_REGISTRY }}/solar-system:${{ github.sha }}
+              ${{ env.LOCAL_REGISTRY }}/solar-system:latest
 
     kind:
-        name: Install kind
+        name: Test K8s
         runs-on: ubuntu-latest
         needs:
         - docker
+        - registry
         steps:
-        - name: install cluster
-          uses: helm/kind-action@v1
         - name: Pull image
           run: |
             # wait for DNS and run image
             sleep 60
             kubectl -n kube-system get pod
-            kubectl run solar --image ${{ secrets.DOCKERHUB_USER}}/solar-system:${{ github.sha }} \
+            kubectl run solar --image ${{ needs.registry.outputs.registry_location }}/solar-system:${{ github.sha }} \
                --pod-running-timeout 60s \
                --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}} \
             sleep 10
