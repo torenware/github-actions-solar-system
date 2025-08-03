@@ -70,7 +70,7 @@ jobs:
 
       env:
         #LOCAL_REGISTRY: ${{ needs.registry.outputs.registry_location }}
-        LOCAL_REGISTRY: localhost:5001
+        LOCAL_REGISTRY: custom-registry:5001
 
       steps:
         - name: Install sources
