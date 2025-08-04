@@ -148,7 +148,9 @@ jobs:
             kubectl -n kube-system get pod
             kubectl run solar --image ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} \
                --pod-running-timeout 60s \
-               --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}}
+               --env MONGO_URI=${{ env.MONGO_URI}} \
+               --env MONGO_USERNAME=${{ env.MONGO_USERNAME}} \
+               --env MONGO_PASSWORD=${{ env.MONGO_PASSWORD}}
 
             echo "kubectl returned $?"
             sleep 10
