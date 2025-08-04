@@ -145,8 +145,10 @@ jobs:
             # wait for DNS and run image
             sleep 60
             kubectl -n kube-system get pod
-            kubectl run solar --image ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} \
+            if !kubectl run solar --image ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} \
                --pod-running-timeout 60s \
-               --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}} \
-            sleep 10
+               --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}} ; then
+
+                sleep 10
+            fi
             kubectl logs solar
