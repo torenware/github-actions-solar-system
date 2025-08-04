@@ -150,5 +150,6 @@ jobs:
                --pod-running-timeout 60s \
                --env MONGO_URI=${{ env.MONGO_URI}},MONGO_USERNAME=${{ env.MONGO_USERNAME}},MONGO_PASSWORD=${{ env.MONGO_PASSWORD}}
 
+            echo "kubectl returned $?"
             sleep 10
             kubectl logs solar
