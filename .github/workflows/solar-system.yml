@@ -130,14 +130,14 @@ jobs:
         - name: Pull image
           run: |
             # wait for DNS and run image
-            set +e
             sleep 60
             kubectl -n kube-system get pod
+            set +e
             kubectl run solar --image ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} \
                --env MONGO_URI=${{ env.MONGO_URI}} \
                --env MONGO_USERNAME=${{ env.MONGO_USERNAME}} \
                --env MONGO_PASSWORD=${{ env.MONGO_PASSWORD}}
-
+            set -e
             echo "kubectl returned $?"
             sleep 10
             kubectl logs solar
